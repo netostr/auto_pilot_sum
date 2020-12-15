@@ -45,8 +45,7 @@ class Car():
 						__distance[__flag_control] += __dist	
 						__value_old = __value
 			else:
-				if __value: __flag_control = 'auto'
-				else: __flag_control = 'manual'
+				__flag_control = 'auto' if __value else 'manual'
 		print(f"Автономно: {__distance['auto']} м\nВ ручном режиме: {__distance['manual']} м")
 
 	
