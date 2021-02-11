@@ -7,46 +7,46 @@ class Car():
 
 	#получает файл сообщений, преобразует в список
 	def __init__(self, url):
-		__req = requests.get(url)
-		self.__list_reports = __req.text.split('\n')
-		self.__get_dict_reports()
+		_req = requests.get(url)
+		self._list_reports = _req.text.split('\n')
+		self._get_dict_reports()
 
 
 	#преобразует полученный список сообщений в словарь и сортирует по ts
-	def __get_dict_reports(self):
-		self.__dictionary_reports = {}			   
-		for __text in self.__list_reports:	
-			if __text != '':
-				__data = json.loads(__text)
-				__key = __data["ts"]
-				if "control_switch_on" in __data:														#exemple {"control_switch_on":false,"ts":1546824945154817766}		
-					__value = __data["control_switch_on"]
+	def _get_dict_reports(self):
+		self._dictionary_reports = {}			   
+		for _text in self._list_reports:	
+			if _text != '':
+				_data = json.loads(_text)
+				_key = _data["ts"]
+				if "control_switch_on" in _data:														#exemple {"control_switch_on":false,"ts":1546824945154817766}		
+					_value = _data["control_switch_on"]
 				else:																				#exemple {"geo":{"lat":36.104064590834020976,"lon":-115.16390984327611591},"ts":1546825180350798251}
-					__value = __data["geo"]
-				self.__dictionary_reports[__key] = __value
+					_value = _data["geo"]
+				self._dictionary_reports[_key] = _value
 
 		#отсортирует по возрастанию ключей словаря
-		self.__dictionary_reports = OrderedDict(sorted(self.__dictionary_reports.items(), key=lambda __t: __t[0]))
+		self._dictionary_reports = OrderedDict(sorted(self._dictionary_reports.items(), key=lambda _t: _t[0]))
 
 	#подсчитывает пройденное расстояние для разных режимов езды 
 	def iter_reports(self):
-		__distance = {'auto': 0, 'manual': 0}
-		__value_old = {}
-		__g = Geod(ellps='WGS84')
-		__flag_control = 'manual'
+		_distance = {'auto': 0, 'manual': 0}
+		_value_old = {}
+		_g = Geod(ellps='WGS84')
+		_flag_control = 'manual'
 
-		for __ts, __value in self.__dictionary_reports.items():
-			if type(__value) == dict:
-				if __value_old == {}:
-					__value_old = __value
+		for _ts, _value in self._dictionary_reports.items():
+			if type(_value) == dict:
+				if _value_old == {}:
+					_value_old = _value
 				else:
-					if abs(__value['lat'] - __value_old['lat']) < 0.01 and abs(__value['lon'] - __value_old['lon']) < 0.01:
-						_, _, __dist = __g.inv(__value_old['lon'], __value_old['lat'], __value['lon'], __value['lat'])        #преобразует из lon, lat в азимуты и расстояние между точками
-						__distance[__flag_control] += __dist	
-						__value_old = __value
+					if abs(_value['lat'] - _value_old['lat']) < 0.01 and abs(_value['lon'] - _value_old['lon']) < 0.01:
+						_, _, _dist = _g.inv(_value_old['lon'], _value_old['lat'], _value['lon'], _value['lat'])        #преобразует из lon, lat в азимуты и расстояние между точками
+						_distance[_flag_control] += _dist	
+						_value_old = _value
 			else:
-				__flag_control = 'auto' if __value else 'manual'
-		print(f"Автономно: {__distance['auto']} м\nВ ручном режиме: {__distance['manual']} м")
+				_flag_control = 'auto' if _value else 'manual'
+		print(f"Автономно: {_distance['auto']} м\nВ ручном режиме: {_distance['manual']} м")
 
 	
 
